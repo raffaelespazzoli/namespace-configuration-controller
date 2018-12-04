@@ -258,6 +258,9 @@ func reconcileRoleBindings(namespaceconfig namespaceconfigv1alpha1.NamespaceConf
 			continue
 		}
 		cnp.Namespace = namespace.Name
+		for _, subject := range cnp.Subjects {
+			subject.Namespace = namespace.Name
+		}
 		found := &rbacv1.RoleBinding{}
 		err = client.Get(context.TODO(), types.NamespacedName{Name: np.Name, Namespace: namespace.Name}, found)
 		if err != nil {
@@ -298,12 +301,15 @@ func reconcileClusterRoleBindings(namespaceconfig namespaceconfigv1alpha1.Namesp
 			errs.PushFront(err)
 			continue
 		}
-		cnp.Namespace = namespace.Name
+		for _, subject := range cnp.Subjects {
+			subject.Namespace = namespace.Name
+		}
 		found := &rbacv1.ClusterRoleBinding{}
 		err = client.Get(context.TODO(), types.NamespacedName{Name: np.Name, Namespace: namespace.Name}, found)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				log.Debugf("clusterrolebindings %s not found in namespace %s , creating it", np.Name, namespace.Name)
+				log.Debugf("creating clusterrolebindings %s ", cnp)
 				err = client.Create(context.TODO(), cnp)
 				if err != nil {
 					log.Printf("Error creating the clusterrolebindings Object: %s", err)

@@ -1,0 +1,19 @@
+apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
+kind: NamespaceConfig
+metadata:
+  name: multitenant
+spec:
+  selector:
+    matchLabels:
+      overcommit: "limited"  
+  limitranges:    
+  - apiVersion: "v1"
+    kind: "LimitRange"
+    metadata:
+      name: "overcommit-limits" 
+    spec:
+      limits:
+        - type: "Container" 
+          maxLimitRequestRatio:
+            cpu: 100
+            memory: 1

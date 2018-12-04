@@ -23,7 +23,7 @@ type NamespaceConfigSpec struct {
 	Quotas              []corev1.ResourceQuota       `json:"quotas,omitempty"`
 	LimitRanges         []corev1.LimitRange          `json:"limitranges,omitempty"`
 	RoleBindings        []rbacv1.RoleBinding         `json:"rolebingings,omitempty"`
-	ClusterRoleBindings []rbacv1.ClusterRoleBinding  `json:"clusterrolebingings,omitempty"`
+	ClusterRoleBindings []rbacv1.ClusterRoleBinding  `json:"clusterrolebindings,omitempty"`
 	ServiceAccounts     []corev1.ServiceAccount      `json:"serviceaccounts,omitempty"`
 }
 

@@ -10,12 +10,11 @@ spec:
   - apiVersion: v1
     kind: ResourceQuota
     metadata:
-    name: small-size
+      name: small-size  
     spec:
-    hard:
-      request.cpu: "4" 
-      request.memory: "2Gi" 
-      limits.ephemeral-storage: "4Gi"
+      hard:
+        requests.cpu: "4" 
+        requests.memory: "2Gi" 
 ---
 apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
 kind: NamespaceConfig
@@ -29,9 +28,8 @@ spec:
   - apiVersion: v1
     kind: ResourceQuota
     metadata:
-    name: large-size
+      name: large-size
     spec:
-    hard:
-      request.cpu: "8" 
-      request.memory: "4Gi" 
-      limits.ephemeral-storage: "8Gi" 
+      hard:
+        requests.cpu: "8" 
+        requests.memory: "4Gi" 
