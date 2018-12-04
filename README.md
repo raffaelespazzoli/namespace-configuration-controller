@@ -138,7 +138,7 @@ oc new-project multitenant-project
 oc label namespace multitenant-project multitenant=true
 ```
 
-## defining the overcommitment ratio
+### defining the overcommitment ratio
 
 I don't personally use limit range much. I prefer to define quotas and let the developers decide if they need a few large pods or many small pods.
 That said limit range can still be useful to define the ration between request and limit, which at the node level will determined the node overcommit ratio.
@@ -173,7 +173,7 @@ oc new-project overcommit-project
 oc label namespace overcommit-project overcommit=limited
 ```
 
-## Distributing the company CA bundle to all the pods.
+### Distributing the company CA bundle to all the pods.
 
 OpenShift is often configured with a self-generated root CA. This means that the pods in the cluster do not have the company CA buundle needed to trust external servers during outbound calls.
 Here is how the namespace configuration controller to achieve this purpose:
@@ -218,7 +218,7 @@ oc new-project company-ca-project
 oc label namespace company-ca-project company_ca_bundle=true
 ```
 
-## ServiceAccount with special permission
+### ServiceAccount with special permission
 
 Another scenario is an application needs to talk to the master API and needs to specific permissions to do that, but we don' want to give the dev team permission to grant those permissoions. As an example, we are creating a service account with regitry-viewer at the cluster level and registry-editor at the namespace level. Here is what we can do:
 
