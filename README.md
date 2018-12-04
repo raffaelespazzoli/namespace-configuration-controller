@@ -136,6 +136,7 @@ We can deploy it with the following commands:
 oc apply -f examples/multitenant-networkpolicy.yaml
 oc new-project multitenant-project
 oc label namespace multitenant-project multitenant=true
+```
 
 ## defining the overcommitment ratio
 
@@ -178,7 +179,6 @@ OpenShift is often configured with a self-generated root CA. This means that the
 Here is how the namespace configuration controller to achieve this purpose:
 
 ```
-
 apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
 kind: NamespaceConfig
 metadata:
