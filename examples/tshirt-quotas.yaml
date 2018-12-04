@@ -1,0 +1,37 @@
+apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
+kind: NamespaceConfig
+metadata:
+  name: small-size
+spec:
+  selector:
+    matchLabels:
+      size: small  
+  quotas:
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+    name: small-size
+    spec:
+    hard:
+      request.cpu: "4" 
+      request.memory: "2Gi" 
+      limits.ephemeral-storage: "4Gi"
+---
+apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
+kind: NamespaceConfig
+metadata:
+  name: large-size
+spec:
+  selector:
+    matchLabels:
+      size: large  
+  quotas:
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+    name: large-size
+    spec:
+    hard:
+      request.cpu: "8" 
+      request.memory: "4Gi" 
+      limits.ephemeral-storage: "8Gi" 

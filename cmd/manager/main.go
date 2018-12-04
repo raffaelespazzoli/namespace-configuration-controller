@@ -2,13 +2,14 @@ package main
 
 import (
 	"flag"
-	"log"
 	"runtime"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
-	"github.com/raffaelespazzoli/namespace-config/namespace-config/pkg/apis"
-	"github.com/raffaelespazzoli/namespace-config/namespace-config/pkg/controller"
+	"github.com/raffaelespazzoli/namespace-configuration-controller/pkg/apis"
+	"github.com/raffaelespazzoli/namespace-configuration-controller/pkg/controller"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -23,7 +24,14 @@ func printVersion() {
 
 func main() {
 	printVersion()
+	var loglevel = flag.String("log-level", "Info", "log level")
+
 	flag.Parse()
+	level, err := log.ParseLevel(*loglevel)
+	if err != nil {
+		log.Fatalf("unable to initialize the log level: %s , error: %s", *loglevel, err)
+	}
+	log.SetLevel(level)
 
 	namespace, err := k8sutil.GetWatchNamespace()
 	if err != nil {
