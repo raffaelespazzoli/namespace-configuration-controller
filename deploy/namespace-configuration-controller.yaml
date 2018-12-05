@@ -64,6 +64,17 @@ rules:
   - namespaceconfigs
   verbs:
   - '*'
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']  
+# this is required to allow the cotnroller to grant any permission, not sure if there is a better way to do it
+# - apiGroups:
+#   - '*'
+#   resources:
+#   - '*' 
+#   verbs:
+#   - '*'
+     
 ---
 apiVersion: v1
 kind: ServiceAccount
