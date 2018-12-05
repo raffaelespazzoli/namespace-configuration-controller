@@ -40,7 +40,15 @@ The selector will select the namespaces to which this configuration should be ap
 In this example all the managed ojects types have a empty array.
 You can add your API object instance there. The namespace field should not be specified and if it exists it will be overwrittent with the namespace name of the namespace to which the configuration is being applied.
 
-## Example of configurations
+## Installation
+Run the following to installe the controller:
+```
+oc new-project namespace-configuration-controller
+oc apply -f deploy/namespace-configuration-controller.yaml
+```
+
+
+## Configuration examples
 
 Here is a list of use cases in which the Namespace Configuration Controller can be useful
 

@@ -1,8 +1,8 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: namespace-config
+  name: namespace-configuration-controller
 rules:
 - apiGroups:
   - ""
@@ -23,6 +23,20 @@ rules:
   - daemonsets
   - replicasets
   - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - networkpolicies
+  - configmaps
+  - limitranges
+  - quotaresources
+  - podpresets
+  - rolebindings
+  - clusterrolebindings
+  - serviceaccounts
+  - namespaces
   verbs:
   - '*'
 - apiGroups:

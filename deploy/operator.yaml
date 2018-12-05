@@ -1,29 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: namespace-config
+  name: namespace-configuration-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: namespace-config
+      name: namespace-configuration-controller
   template:
     metadata:
       labels:
-        name: namespace-config
+        name: namespace-configuration-controller
     spec:
-      serviceAccountName: namespace-config
+      serviceAccountName: namespace-configuration-controller
       containers:
-        - name: namespace-config
-          # Replace this with the built image name
-          image: REPLACE_IMAGE
+        - name: namespace-configuration-controller
+          image: quay.io/raffaelespazzoli/namespace-configuration-controller:latest
           ports:
           - containerPort: 60000
             name: metrics
           command:
-          - namespace-config
+          - namespace-configuration-controller
+          args:
+            - '--log-level'
+            - $LOG_LEVEL
           imagePullPolicy: Always
           env:
+            - name: LOG_LEVEL
+              value: debug
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -33,4 +37,4 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "namespace-config"
+              value: "namespace-configuration-controller"
