@@ -156,7 +156,7 @@ Here is how it can be done:
 apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
 kind: NamespaceConfig
 metadata:
-  name: multitenant
+  name: overcommit-limitrange
 spec:
   selector:
     matchLabels:
