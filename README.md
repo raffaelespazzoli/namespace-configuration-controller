@@ -184,6 +184,7 @@ oc label namespace overcommit-project overcommit=limited
 ### Distributing the Company CA Bundle to every Pod.
 
 OpenShift is often configured with a self-generated root CA. This means that the pods in the cluster do not have the company CA buundle needed to trust external servers during outbound calls.
+Note: this example does not work on OCP 3.11 and later as support for podpreset has been removed.
 Here is how the namespace configuration controller to achieve this purpose:
 
 ```
@@ -238,7 +239,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      specialsa: "true"
+      special-sa: "true"
   serviceaccounts: 
   - apiVersion: v1
     kind: ServiceAccount
@@ -275,9 +276,9 @@ oc new-project special-sa
 oc label namespace special-sa special-sa=true
 ```
 
-## Pod with special permissions
+## Pod with Special Permissions
 
-Another scenario is pod that need to run with special permissions, i.e. a custom PodSecurityPolicy.
+Another scenario is pod that need to run with special permissions, i.e. a custom PodSecurityPolicy and we don't want to give permission to the dev team to grant PodSecurityPolicy permissions.
 In OpenbShift SCC have represneted the PodSecurityPolicy since the beginning of the product.
 SCCs are not compatible with namesace-configuration-controller because of the way SCCs profiles are granted to serviceaccounts.
 With PodSecurityPolicy, this grant is done simply with a RoleBinding object.
@@ -337,9 +338,11 @@ spec:
     - kind: ServiceAccount
       name: unprivileged-pods    
 ```
-here is how this example can be run:
+Also in this case we need to give additional privileges to the namespace-configuration-controller service account.
+Here is how this example can be run:
 ```
 oc apply -f examples/special-pod.yaml
+oc adm policy add-cluster-role-to-user forbid-privileged-pods -n namespace-configuration-controller -z namespace-configuration-controller
 oc new-project special-pod
 oc label namespace special-pod unprivileged-pods=true
 ``` 

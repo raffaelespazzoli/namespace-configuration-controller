@@ -258,8 +258,8 @@ func reconcileRoleBindings(namespaceconfig namespaceconfigv1alpha1.NamespaceConf
 			continue
 		}
 		cnp.Namespace = namespace.Name
-		for _, subject := range cnp.Subjects {
-			subject.Namespace = namespace.Name
+		for idx := range cnp.Subjects {
+			cnp.Subjects[idx].Namespace = namespace.Name
 		}
 		found := &rbacv1.RoleBinding{}
 		err = client.Get(context.TODO(), types.NamespacedName{Name: np.Name, Namespace: namespace.Name}, found)
@@ -301,8 +301,8 @@ func reconcileClusterRoleBindings(namespaceconfig namespaceconfigv1alpha1.Namesp
 			errs.PushFront(err)
 			continue
 		}
-		for _, subject := range cnp.Subjects {
-			subject.Namespace = namespace.Name
+		for idx := range cnp.Subjects {
+			cnp.Subjects[idx].Namespace = namespace.Name
 		}
 		found := &rbacv1.ClusterRoleBinding{}
 		err = client.Get(context.TODO(), types.NamespacedName{Name: np.Name, Namespace: namespace.Name}, found)

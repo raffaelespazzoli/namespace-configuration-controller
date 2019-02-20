@@ -3,12 +3,9 @@ kind: NamespaceConfig
 metadata:
   name: example-namespaceconfig
 spec:
-  # Add fields here
   selector:
     matchLabels:
-      namespaceconfig: "true"
-    # matchExpressions:
-    # - {key: namespaceconfig, operator: In, values: ["true"]}  
+      namespaceconfig: "true" 
   networkpolicies:
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
@@ -18,3 +15,10 @@ spec:
       podSelector: {}
       policyTypes:
       - Ingress
+  configmaps: []         
+  podpresets: []         
+  quotas: []              
+  limitranges: []        
+  rolebindings: []        
+  clusterrolebindings: [] 
+  serviceaccounts: []      
