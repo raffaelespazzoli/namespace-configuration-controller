@@ -41,7 +41,7 @@ In this example all the managed ojects types have a empty array.
 You can add your API object instance there. The namespace field should not be specified and if it exists it will be overwrittent with the namespace name of the namespace to which the configuration is being applied.
 
 ## Installation
-Run the following to installe the controller:
+Run the following to install the controller:
 ```
 oc new-project namespace-configuration-controller
 oc apply -f deploy/namespace-configuration-controller.yaml
@@ -54,7 +54,7 @@ Here is a list of use cases in which the Namespace Configuration Controller can 
 
 ### T-Shirt Sized Quotas
 
-during the provisionin gof ne projects to dev teams some organizations start with T-shirt sized quotas. Here is an example of how this can be done with the Namespace Configuration Controller
+during the provisioning of new projects to dev teams some organizations start with T-shirt sized quotas. Here is an example of how this can be done with the Namespace Configuration Controller
 
 ```
 apiVersion: namespaceconfig.raffaelespazzoli.systems/v1alpha1
