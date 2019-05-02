@@ -22,7 +22,8 @@ type NamespaceConfigSpec struct {
 	PodPresets          []settingsv1alpha1.PodPreset `json:"podpresets,omitempty"`
 	Quotas              []corev1.ResourceQuota       `json:"quotas,omitempty"`
 	LimitRanges         []corev1.LimitRange          `json:"limitranges,omitempty"`
-	RoleBindings        []rbacv1.RoleBinding         `json:"rolebingings,omitempty"`
+	Roles               []rbacv1.Role                `json:"roles,omitempty"`
+	RoleBindings        []rbacv1.RoleBinding         `json:"rolebindings,omitempty"`
 	ClusterRoleBindings []rbacv1.ClusterRoleBinding  `json:"clusterrolebindings,omitempty"`
 	ServiceAccounts     []corev1.ServiceAccount      `json:"serviceaccounts,omitempty"`
 }

@@ -4,9 +4,9 @@ import (
 	"container/list"
 	"context"
 
+	log "github.com/sirupsen/logrus"
 	namespaceconfigv1alpha1 "github.com/raffaelespazzoli/namespace-configuration-controller/pkg/apis/namespaceconfig/v1alpha1"
 	chandler "github.com/raffaelespazzoli/namespace-configuration-controller/pkg/controller/handler"
-	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -98,6 +98,7 @@ func (r *ReconcileNamespace) Reconcile(request reconcile.Request) (reconcile.Res
 	}
 
 	//find all namepaceconfig which apply to this namespace
+	namespace := *instance
 	ncl, err := r.findApplicableNameSpaceConfigs(*instance)
 
 	errs := list.New()
@@ -106,7 +107,11 @@ func (r *ReconcileNamespace) Reconcile(request reconcile.Request) (reconcile.Res
 		applyerrs := chandler.ApplyConfigToNamespace(nc, *instance, r.scheme, r.client)
 		errs.PushFrontList(&applyerrs)
 	}
-	log.Infof("reconciliation on namespace % executed with the following errors %s", request.Namespace, errs)
+	if errs.Len() > 0 {
+		log.Infof("reconciliation on namespace %s executed with the following errors (if any) %+v\n", namespace.Name, errs)
+	} else {
+		log.Infof("reconciliation on namespace %s executed without errors\n", namespace.Name)
+	}
 	return reconcile.Result{}, nil
 }
 
@@ -136,6 +141,6 @@ func (r *ReconcileNamespace) findApplicableNameSpaceConfigs(namespace corev1.Nam
 		ret.Items[i] = e.Value.(namespaceconfigv1alpha1.NamespaceConfig)
 		e = e.Next()
 	}
-	log.Debugf("found namespaceconfigs %s applicable to namespace %s", ret.Items, namespace.Name)
+	log.Debugf("found namespaceconfigs %+v applicable to namespace %s", ret.Items, namespace.Name)
 	return ret, nil
 }

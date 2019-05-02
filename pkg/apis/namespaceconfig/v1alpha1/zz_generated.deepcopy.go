@@ -135,6 +135,13 @@ func (in *NamespaceConfigSpec) DeepCopyInto(out *NamespaceConfigSpec) {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+	if in.Roles != nil {
+		in, out := &in.Roles, &out.Roles
+		*out = make([]rbacv1.Role, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
+	}
 	if in.ClusterRoleBindings != nil {
 		in, out := &in.ClusterRoleBindings, &out.ClusterRoleBindings
 		*out = make([]rbacv1.ClusterRoleBinding, len(*in))
