@@ -1,5 +1,8 @@
 # Namespace Configuration Controller
 
+**This project is has been moved [here](https://github.com/redhat-cop/namespace-configuration-operator/tree/master). This repo now not maintaned anymore.**
+
+
 The namespace configuration controller helps keeping a namespace's configuration aligned with one of more policies specified as a CRD.
 Currently the following objects are part of the namespace configuration:
 
