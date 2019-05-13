@@ -248,7 +248,7 @@ spec:
     kind: ServiceAccount
     metadata:
       name: special-sa
-  rolebingings:
+  rolebindings:
   - apiVersion: authorization.openshift.io/v1
     kind: RoleBinding
     metadata:
@@ -328,7 +328,7 @@ spec:
     kind: ServiceAccount
     metadata:
       name: unprivileged-pods
-  rolebingings:
+  rolebindings:
   - apiVersion: authorization.openshift.io/v1
     kind: RoleBinding
     metadata:

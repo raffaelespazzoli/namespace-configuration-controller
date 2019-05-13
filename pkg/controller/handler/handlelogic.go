@@ -3,9 +3,10 @@ package handler
 import (
 	"container/list"
 	"context"
+	"strings"
 
-	namespaceconfigv1alpha1 "github.com/raffaelespazzoli/namespace-configuration-controller/pkg/apis/namespaceconfig/v1alpha1"
 	log "github.com/sirupsen/logrus"
+	namespaceconfigv1alpha1 "github.com/raffaelespazzoli/namespace-configuration-controller/pkg/apis/namespaceconfig/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -17,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// ApplyConfigToNamespace is function that iterate throug the list of objects in affected namespace and apply configurations to it
 func ApplyConfigToNamespace(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig, namespace corev1.Namespace, scheme *runtime.Scheme, client client.Client) list.List {
 	log.Debugf("starting to apply namespace config %s to namespace %s", namespaceconfig.Name, namespace.Name)
 	errs := list.New()
@@ -34,6 +36,8 @@ func ApplyConfigToNamespace(namespaceconfig namespaceconfigv1alpha1.NamespaceCon
 	errs.PushFrontList(&nperrs)
 	nperrs = reconcileRoleBindings(namespaceconfig, namespace, scheme, client)
 	errs.PushFrontList(&nperrs)
+	nperrs = reconcileRoles(namespaceconfig, namespace, scheme, client)
+	errs.PushFrontList(&nperrs)
 	nperrs = reconcileServiceAccount(namespaceconfig, namespace, scheme, client)
 	errs.PushFrontList(&nperrs)
 	return *errs
@@ -44,6 +48,9 @@ func reconcileNetworkPolicy(namespaceconfig namespaceconfigv1alpha1.NamespaceCon
 	errs := list.New()
 	log.Debugf("there are %d networkpolicy to apply", len(namespaceconfig.Spec.NetworkPolicies))
 	for _, np := range namespaceconfig.Spec.NetworkPolicies {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling network policy %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -65,16 +72,16 @@ func reconcileNetworkPolicy(namespaceconfig namespaceconfigv1alpha1.NamespaceCon
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("network policy %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the NetworkPolicy Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("network policy %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the NetworkPolicy Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -85,6 +92,9 @@ func reconcileConfigmaps(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig
 	errs := list.New()
 	log.Debugf("there are %d confimaps to apply", len(namespaceconfig.Spec.Configmaps))
 	for _, np := range namespaceconfig.Spec.Configmaps {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling configmaps %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -106,16 +116,16 @@ func reconcileConfigmaps(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("configmap %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the Configmap Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("configmap %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the Configmap Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -126,6 +136,9 @@ func reconcilePodPreset(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig,
 	errs := list.New()
 	log.Debugf("there are %d podpresets to apply", len(namespaceconfig.Spec.PodPresets))
 	for _, np := range namespaceconfig.Spec.PodPresets {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling podpresets %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -147,16 +160,16 @@ func reconcilePodPreset(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig,
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("podpreset %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the podpreset Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("podpreset %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the podpreset Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -167,6 +180,9 @@ func reconcileQuotas(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig, na
 	errs := list.New()
 	log.Debugf("there are %d quotas to apply", len(namespaceconfig.Spec.Quotas))
 	for _, np := range namespaceconfig.Spec.Quotas {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling quotas %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -188,16 +204,16 @@ func reconcileQuotas(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig, na
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("quotas %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the quotas Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("quotas %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the quotas Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -208,6 +224,9 @@ func reconcileLimitRanges(namespaceconfig namespaceconfigv1alpha1.NamespaceConfi
 	errs := list.New()
 	log.Debugf("there are %d limitranges to apply", len(namespaceconfig.Spec.LimitRanges))
 	for _, np := range namespaceconfig.Spec.LimitRanges {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling limitranges %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -229,16 +248,16 @@ func reconcileLimitRanges(namespaceconfig namespaceconfigv1alpha1.NamespaceConfi
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("limitranges %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the limitranges Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("limitranges %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the limitranges Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -249,6 +268,9 @@ func reconcileRoleBindings(namespaceconfig namespaceconfigv1alpha1.NamespaceConf
 	errs := list.New()
 	log.Debugf("there are %d rolebindings to apply", len(namespaceconfig.Spec.RoleBindings))
 	for _, np := range namespaceconfig.Spec.RoleBindings {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling rolebindings %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -273,16 +295,60 @@ func reconcileRoleBindings(namespaceconfig namespaceconfigv1alpha1.NamespaceConf
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("rolebindings %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
+			}
+		} else {
+			log.Debugf("rolebindings %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the rolebindings Object: %s", err)
+				errs.PushFront(err)
+				continue
+			}
+			continue
+		}
+	}
+	return *errs
+}
+
+func reconcileRoles(namespaceconfig namespaceconfigv1alpha1.NamespaceConfig, namespace corev1.Namespace, scheme *runtime.Scheme, client client.Client) list.List {
+	log.Debugf("reconciling configured roles in namespace %s", namespace.Name)
+	errs := list.New()
+	log.Debugf("there are %d roles to apply", len(namespaceconfig.Spec.Roles))
+	for _, np := range namespaceconfig.Spec.Roles {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
+		log.Debugf("reconciling roles %s in namespace %s", np.Name, namespace.Name)
+		cnp := np.DeepCopy()
+		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
+		if err != nil {
+			log.Printf("Error Setting The Object Owner: %s", err)
+			errs.PushFront(err)
+			continue
+		}
+		cnp.Namespace = namespace.Name
+		found := &rbacv1.RoleBinding{}
+		err = client.Get(context.TODO(), types.NamespacedName{Name: np.Name, Namespace: namespace.Name}, found)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				log.Debugf("roles %s not found in namespace %s , creating it", np.Name, namespace.Name)
+				err = client.Create(context.TODO(), cnp)
 				if err != nil {
-					log.Printf("Error updating the rolebindings Object: %s", err)
+					log.Printf("Error creating the roles Object: %s", err)
 					errs.PushFront(err)
 					continue
 				}
 				continue
 			}
+		} else {
+			log.Debugf("roles %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the roles Object: %s", err)
+				errs.PushFront(err)
+				continue
+			}
+			continue
 		}
 	}
 	return *errs
@@ -293,6 +359,9 @@ func reconcileClusterRoleBindings(namespaceconfig namespaceconfigv1alpha1.Namesp
 	errs := list.New()
 	log.Debugf("there are %d clusterrolebindings to apply", len(namespaceconfig.Spec.ClusterRoleBindings))
 	for _, np := range namespaceconfig.Spec.ClusterRoleBindings {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling clusterrolebindings %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -317,16 +386,16 @@ func reconcileClusterRoleBindings(namespaceconfig namespaceconfigv1alpha1.Namesp
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("clusterrolebindings %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the clusterrolebindings Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("clusterrolebindings %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the clusterrolebindings Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
@@ -337,6 +406,9 @@ func reconcileServiceAccount(namespaceconfig namespaceconfigv1alpha1.NamespaceCo
 	errs := list.New()
 	log.Debugf("there are %d serviceaccounts to apply", len(namespaceconfig.Spec.ServiceAccounts))
 	for _, np := range namespaceconfig.Spec.ServiceAccounts {
+		if strings.Contains(np.Name, "\"*\"") {
+			np.Name = namespace.Name + np.Name[strings.Index(np.Name, "\"*\"")+3:]
+		}
 		log.Debugf("reconciling serviceaccounts %s in namespace %s", np.Name, namespace.Name)
 		cnp := np.DeepCopy()
 		err := controllerutil.SetControllerReference(&namespaceconfig, cnp, scheme)
@@ -358,16 +430,16 @@ func reconcileServiceAccount(namespaceconfig namespaceconfigv1alpha1.NamespaceCo
 					continue
 				}
 				continue
-			} else {
-				log.Debugf("serviceaccounts %s found in namespace %s , updating it", np.Name, namespace.Name)
-				err = client.Update(context.TODO(), cnp)
-				if err != nil {
-					log.Printf("Error updating the serviceaccounts Object: %s", err)
-					errs.PushFront(err)
-					continue
-				}
+			}
+		} else {
+			log.Debugf("serviceaccounts %s found in namespace %s , updating it", np.Name, namespace.Name)
+			err = client.Update(context.TODO(), cnp)
+			if err != nil {
+				log.Printf("Error updating the serviceaccounts Object: %s", err)
+				errs.PushFront(err)
 				continue
 			}
+			continue
 		}
 	}
 	return *errs
